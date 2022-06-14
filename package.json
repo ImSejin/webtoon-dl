@@ -8,13 +8,12 @@
   "scripts": {
     "start:download": "ts-node ./src/webtoon/main.ts download",
     "dev": "nodemon --watch ./src/**/*.ts --exec ts-node ./src/webtoon/main.ts download --platform=toptoon --name=level_up_doctor --config-path='../../platform-config/toptoon.json' --d",
-    "type-check": "tsc --noEmit",
-    "type-check:watch": "npm run type-check -- --watch",
     "clean": "node .clean.js ./build",
     "build": "npm run build:types && npm run build:js",
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "babel src/ --out-dir ./build --extensions \".ts,.tsx\" --source-maps inline",
-    "download:toptoon": "node ./build/webtoon/toptoon/main.js"
+    "type-check": "tsc --noEmit",
+    "type-check:watch": "npm run type-check -- --watch"
   },
   "dependencies": {
     "puppeteer": "^14.3.0",
