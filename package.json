@@ -1,7 +1,7 @@
 {
-  "name": "webtoon-downloader",
+  "name": "webtoon-dl",
   "version": "0.1.0",
-  "description": "Downloader for webtoon",
+  "description": "Downloader for webtoons",
   "private": true,
   "author": "ImSejin",
   "license": "MIT",
