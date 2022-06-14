@@ -1,0 +1,9 @@
+lib/
+build/
+dist/
+node_modules/
+!src/**/lib/
+
+# Jetbrains Products
+.idea/
+*.imi
