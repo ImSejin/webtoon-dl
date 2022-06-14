@@ -1,10 +1,10 @@
 // arguments[0]: node.exe
-// arguments[1]: main.ts
+// arguments[1]: downloader.ts
 
 import yargs from 'yargs';
 import {hideBin} from 'yargs/helpers';
 import pkg from '../../package.json';
-import {downloadToptoon} from "./toptoon/main";
+import {download as downloadToptoon} from "./toptoon/downloader";
 import {AdditionalConfiguration} from "./common/type/additional-configuration";
 
 yargs.version(pkg.version);
@@ -48,8 +48,6 @@ yargs(hideBin(process.argv)).command({
     },
   },
   async handler(args) {
-    console.log('args', args);
-
     const {username, password}: AdditionalConfiguration = args.configPath
         ? await import(args.configPath as string)
         : {username: null, password: null};
@@ -63,7 +61,6 @@ yargs(hideBin(process.argv)).command({
       default:
         break;
     }
-    // console.log(args)
   },
 });
 
