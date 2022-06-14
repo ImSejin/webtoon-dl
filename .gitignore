@@ -7,3 +7,6 @@ node_modules/
 # Jetbrains Products
 .idea/
 *.imi
+
+# Private information
+platform-config/
