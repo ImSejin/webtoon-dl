@@ -5,6 +5,8 @@ import {DISABLE_POPUP_BLOCKING, INCOGNITO, NO_DEFAULT_BROWSER_CHECK} from '../co
 import {getElementByXpath} from "../common/lib/browser";
 import {downloadByURL} from "../common/lib/downloader";
 import {Episode} from "./type/episode";
+import {replaceForbiddenCharactersInFileName} from "../common/lib/converter";
+import {OperatingSystem} from "../common/lib/system";
 
 export const download = async (
     comicId: string,
@@ -112,7 +114,8 @@ export const download = async (
       console.log(`Found ${episode.images.length} image(s) in this webpage: ${episode.url}`);
 
       // Creates a directory that contains the images.
-      const episodeDirName = `${String(episode.episodeId).padStart(4, '0')} - ${episode.episodeDisplayName}`;
+      const displayName = replaceForbiddenCharactersInFileName(episode.episodeDisplayName, OperatingSystem.current());
+      const episodeDirName = `${String(episode.episodeId).padStart(4, '0')} - ${displayName}`;
       const episodeDir = path.join(comicDir, episodeDirName);
       if (!fs.existsSync(episodeDir)) fs.mkdirSync(episodeDir);
 
