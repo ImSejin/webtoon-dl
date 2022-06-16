@@ -22,15 +22,6 @@ export const download = async (
     const page = await browser.newPage();
     await page.goto('https://toptoon.com');
 
-    // await page.exposeFunction('stubFunction', (param: string) => param + Math.round(Math.random() * 100));
-    // await page.exposeFunction('stubFunction', (xpath: string, document: Document) => document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue);
-    // const value = await page.evaluate(async (xpath) => {
-    //   // @ts-ignore
-    //   return (await window.stubFunction(xpath, document)).toString()//dataset.value;
-    // }, '//a[contains(@class, "episode-items")]');
-
-    // console.log('value', value);
-
     // @ts-ignore
     // Login through toptoon platform.
     await page.evaluate(() => window.Login.login({'no-token': 'yes'}));
@@ -51,23 +42,19 @@ export const download = async (
     await page.goto(`https://toptoon.com/comic/ep_list/${comicId}`);
     await page.waitForSelector('a.episode-items[data-comic-id][data-episode-id][data-value][data-act]', {timeout: 10000});
 
-    await page.exposeFunction('getElementByXpath', getElementByXpath);
-
-    const json = await page.evaluate(() => {
-      // const getElementByXpath = (
-      //     xpath: string,
-      //     contextNode: Node = window.document,
-      // ): Node | null => {
-      //   const xPathResult = window.document.evaluate(xpath, contextNode, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
-      //   return xPathResult.singleNodeValue;
-      // };
-
+    const json = await page.evaluate((fn) => {
       const episodeElements: NodeListOf<HTMLAnchorElement> = document.querySelectorAll('a.episode-items[data-comic-id][data-episode-id][data-value][data-act]');
 
-      const episodes = Array.from(episodeElements).map(async it => {
-        const episodeTitleElement = await getElementByXpath('.//p[contains(@class, "episode_title")]', it) as HTMLElement | null;
+      // page.exposeFunction is not working: Cannot access object
+      // in browser environment (not nodejs environment, e.g. "window")
+      // Passes the function content as serializable string and creates function object dynamically.
+      // See https://stackoverflow.com/questions/48281130/why-cant-i-access-window-in-an-exposefunction-function-with-puppeteer
+      const $getElementByXpath = new Function('xpath', 'contextNode', `return (${fn})(xpath, contextNode)`);
+
+      const episodes = Array.from(episodeElements).map(it => {
+        const episodeTitleElement = $getElementByXpath('.//p[contains(@class, "episode_title")]', it) as HTMLElement | null;
         if (episodeTitleElement === null) throw new Error('Cannot find episode title');
-        const detailedEpisodeTitleElement = await getElementByXpath('.//p[contains(@class, "episode_stitle")]', it) as HTMLElement | null;
+        const detailedEpisodeTitleElement = $getElementByXpath('.//p[contains(@class, "episode_stitle")]', it) as HTMLElement | null;
         if (detailedEpisodeTitleElement === null) throw new Error('Cannot find detailed episode title');
 
         return {
@@ -85,7 +72,7 @@ export const download = async (
       });
 
       return JSON.stringify(episodes);
-    });
+    }, getElementByXpath.toString());
 
     const episodes: Array<Episode> = JSON.parse(json);
     if (episodes.length === 0) return;
